@@ -1,0 +1,22 @@
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+
+repositories {
+
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+
+dependencies {
+      
+   compile 'org.slf4j:slf4j-nop:1.7.25'
+   compile 'com.github.iotaledger:iota.lib.java:v0.9.6'
+}
+
+
+mainClassName = 'gui.Gui'
+
