@@ -13,9 +13,10 @@ A simple program to show the cumulative balance of an iota seed
 #### Windows
 4.2 Run the **Iota-Balance-Viewer.bat** file as administrator
 
-### Prerequisite
+## Prerequisite
 A Java Runtime Environment must be installed
 
-#### Donation
+## Donation
 If you like it and want to send some Iotas, here is an address ;)
+
 KUFQMOSCOXJNLZKBQU9THU9MSKJNLGWYPYLIXLMANUEYJ9VDQHHPFSMULADHLDYRZH9RTHCTGDGYCUOKZMA9T9QRBW
