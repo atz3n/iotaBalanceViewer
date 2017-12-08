@@ -3,16 +3,23 @@ package gui;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
+
+import settings.Settings;
 
 public class Gui {
 
@@ -23,6 +30,11 @@ public class Gui {
 	private JTextArea textArea;
 	private JTextField txtBalance;
 	private JButton btnStart;
+	private SpringLayout springLayout;
+	private JLabel lblAmountOfAddresses;
+	private JRadioButtonMenuItem rdbtnmntmIotaCafe;
+	private JRadioButtonMenuItem rdbtnmntmIotaSupport;
+	private JRadioButtonMenuItem rdbtnmntmBitfinex;
 	
 
 	/**
@@ -46,7 +58,23 @@ public class Gui {
 	 */
 	public Gui() {
 		initialize();
-		GuiWrapper.init(textArea, txtChecksum, txtBalance);
+		GuiWrapper.init(textArea, txtBalance, btnStart, pwdSeed);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frmIotaBalanceViewer.setJMenuBar(menuBar);
+		
+		JMenu mnNode = new JMenu("Node");
+		menuBar.add(mnNode);
+		
+		rdbtnmntmIotaCafe = new JRadioButtonMenuItem("Iota Cafe");
+		rdbtnmntmIotaCafe.setSelected(true);
+		mnNode.add(rdbtnmntmIotaCafe);
+		
+		rdbtnmntmIotaSupport = new JRadioButtonMenuItem("Iota Support");
+		mnNode.add(rdbtnmntmIotaSupport);
+		
+		rdbtnmntmBitfinex = new JRadioButtonMenuItem("Bitfinex");
+		mnNode.add(rdbtnmntmBitfinex);
 		initListener();
 	}
 
@@ -55,10 +83,10 @@ public class Gui {
 	 */
 	private void initialize() {
 		frmIotaBalanceViewer = new JFrame();
-		frmIotaBalanceViewer.setTitle("Iota Balance Viewer");
+		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.2.0");
 		frmIotaBalanceViewer.setBounds(100, 100, 450, 394);
 		frmIotaBalanceViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SpringLayout springLayout = new SpringLayout();
+		springLayout = new SpringLayout();
 		frmIotaBalanceViewer.getContentPane().setLayout(springLayout);
 		
 		txtChecksum = new JTextField();
@@ -80,7 +108,7 @@ public class Gui {
 		springLayout.putConstraint(SpringLayout.NORTH, lblSeed, 2, SpringLayout.NORTH, txtChecksum);
 		frmIotaBalanceViewer.getContentPane().add(lblSeed);
 		
-		JLabel lblAmountOfAddresses = new JLabel("Number of addresses");
+		lblAmountOfAddresses = new JLabel("Number of addresses");
 		springLayout.putConstraint(SpringLayout.NORTH, lblAmountOfAddresses, 15, SpringLayout.SOUTH, lblSeed);
 		springLayout.putConstraint(SpringLayout.WEST, lblAmountOfAddresses, 10, SpringLayout.WEST, frmIotaBalanceViewer.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, lblSeed, 0, SpringLayout.WEST, lblAmountOfAddresses);
@@ -112,6 +140,7 @@ public class Gui {
 		scrollPane.setViewportView(textArea);
 		
 		btnStart = new JButton("Start");
+		btnStart.setEnabled(false);
 		springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, -20, SpringLayout.NORTH, btnStart);
 		springLayout.putConstraint(SpringLayout.SOUTH, btnStart, -10, SpringLayout.SOUTH, frmIotaBalanceViewer.getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, btnStart, 0, SpringLayout.EAST, txtChecksum);
@@ -140,8 +169,52 @@ public class Gui {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				GuiWrapper.getBalance(pwdSeed.getText(), txtAmountOfAdresses.getText());
+				GuiWrapper.getBalance(new String(pwdSeed.getPassword()), txtAmountOfAdresses.getText());
+			}
+		});
+		
+		
+		pwdSeed.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				txtChecksum.setText(GuiWrapper.getChecksum(new String(pwdSeed.getPassword())));
+			}
+			
+		});
+		
+		
+		rdbtnmntmIotaCafe.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FULL_NODE_SETTINGS.setIotaCafeNode();
+			}
+		});
+		
+		
+		rdbtnmntmIotaSupport.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FULL_NODE_SETTINGS.setIotaSupportNode();
+			}
+		});
+		
+		
+		rdbtnmntmBitfinex.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FULL_NODE_SETTINGS.setBitfinexNode();
 			}
 		});
 	}

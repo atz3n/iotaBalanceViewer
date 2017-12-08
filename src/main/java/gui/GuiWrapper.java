@@ -1,60 +1,115 @@
 package gui;
 
+import java.util.regex.Pattern;
+
+import javax.swing.JButton;
+import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import logic.Logic;
+import settings.MessageSettings;
 import utilities.TextAreaWriter;
 
 public class GuiWrapper {
 
 	public static TextAreaWriter messenger;
 
-	private static JTextField _checksum;
 	private static JTextField _balance;
+	private static JButton _startButton;
+	private static JPasswordField _seedField;
+	
+	private static String cumBalance;
 
 	
-	private static boolean isValidValue(String seed, String numOfAddresses) {
+	
+	private static boolean checkValue(String numOfAddresses) {
 
 		if (Integer.valueOf(numOfAddresses) == null) {
-			messenger.writeLine("ERROR: Number of addresses is not an integer value");
+			messenger.writeLine(MessageSettings.ERROR__NUM_OF_ADDR_NOT_AN_INTEGER);
 			return false;
 		} else if (Integer.valueOf(numOfAddresses) < 1) {
-			messenger.writeLine("ERROR: Number of addresses is smaller than 1");
-			return false;
-		}
-
-		if (Logic.checkSeed(seed).equals("not a seed")) {
-			messenger.writeLine("ERROR:_ Seed is not valid");
+			messenger.writeLine(MessageSettings.ERROR__NUM_OF_ADDR_TO_SMALL);
 			return false;
 		}
 
 		return true;
 	}
-
 	
-	public static void init(JTextArea messageField, JTextField checksum, JTextField balance) {
-		_checksum = checksum;
+	
+	public static void init(JTextArea messageField, JTextField balance, JButton startButton, JPasswordField seedField) {
 		_balance = balance;
-
+		_startButton = startButton;
+		_seedField = seedField;
+		
 		messenger = new TextAreaWriter(messageField);
-
-		messenger.writeLine("Enter a Seed and push the Start button");
+		messenger.writeLine(MessageSettings.INITIAL_TEXT);
 	}
-
+	
+	
+	public static String getChecksum(String seed) {
+		messenger.clear();
+		_startButton.setEnabled(false);
+		
+		String checksum = "";
+		
+		
+		/* check chars */
+		if(!Pattern.matches("[A-Z9]*", seed)) {
+			messenger.writeLine(MessageSettings.ERROR__SEED_WRONG_CHAR);
+			return checksum;
+		}
+		
+		
+		/* check length */
+		if (seed.length() != Logic.SEED_LENGTH) {
+			
+			if(seed.length() == 0) { 
+				messenger.writeLine(MessageSettings.INITIAL_TEXT);
+			} else if(seed.length() < Logic.SEED_LENGTH) {
+				messenger.writeLine((Logic.SEED_LENGTH - seed.length()) + MessageSettings.MORE_CHAR_TO_SEED);
+			} else {
+				messenger.writeLine(MessageSettings.TO_MANY_CHAR + Logic.SEED_LENGTH);
+			}
+			
+			 return checksum;
+		} 
+			
+		
+		/* get checksum */
+		checksum = Logic.checkSeed(seed);
+		
+		messenger.writeLine(MessageSettings.START_PROGRAM);
+		_startButton.setEnabled(true);
+		
+		return checksum;
+	}
+	
 	
 	public static void getBalance(String seed, String numOfAddresses) {
 		messenger.clear();
-
-		if (!isValidValue(seed, numOfAddresses)) return;
-
-		
-		/* get checksum */
-		_checksum.setText(Logic.checkSeed(seed));
+		cumBalance = null;
 
 		
-		/* get cumulative balance */
-		String cumBalance = Logic.getCumulativeBalance(seed, Integer.valueOf(numOfAddresses));
-		if (cumBalance != null) _balance.setText(cumBalance);
+		/* creating new Thread to decouple the logic from the GUI */
+		(new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				_seedField.setEditable(false);
+				_startButton.setEnabled(false);
+				
+				if (!checkValue(numOfAddresses)) return;
+
+				/* get cumulative balance */
+				cumBalance = Logic.getCumulativeBalance(seed, Integer.valueOf(numOfAddresses));
+
+				
+				if (cumBalance != null) _balance.setText(cumBalance);
+				
+				_startButton.setEnabled(true);
+				_seedField.setEditable(true);
+			}
+		} )).start();
 	}
 }
