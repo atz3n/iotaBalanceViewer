@@ -29,6 +29,7 @@ public class MessageSettings {
 	public final static String TO_MANY_CHAR = "To many characters. Seed length must be exactly ";
 	
 	public final static String START_PROGRAM = "All right. Ready to go.\nPush the start button and launch the rocket ;)";
+	public final static String GEN_SEED_WARNING = "\nCAUTION: SAVE YOUR SEED!!!\nYOU'LL LOSE ALL YOUR IOTAS IN CASE OF LOST!!!";
 	
 	public final static String ADDRESS_STRING = "address: ";
 	public final static String ADDRESS_INDEX_STRING = "address index: ";
