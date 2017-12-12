@@ -136,6 +136,7 @@ public class GuiWrapper {
 			@Override
 			public void run() {
 				_seedField.setEditable(false);
+				_numOfAddField.setEditable(false);
 				_startButton.setEnabled(false);
 				
 
@@ -146,6 +147,7 @@ public class GuiWrapper {
 				if (cumBalance != null) _balance.setText(cumBalance);
 				
 				_startButton.setEnabled(true);
+				_numOfAddField.setEditable(true);
 				_seedField.setEditable(true);
 			}
 		} )).start();

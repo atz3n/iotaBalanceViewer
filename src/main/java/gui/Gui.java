@@ -99,7 +99,7 @@ public class Gui {
 	 */
 	private void initialize() {
 		frmIotaBalanceViewer = new JFrame();
-		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.3.0");
+		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.3.1");
 		frmIotaBalanceViewer.setBounds(100, 100, 450, 394);
 		frmIotaBalanceViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		springLayout = new SpringLayout();
@@ -123,13 +123,14 @@ public class Gui {
 		springLayout.putConstraint(SpringLayout.WEST, lblSeed, 10, SpringLayout.WEST, frmIotaBalanceViewer.getContentPane());
 		frmIotaBalanceViewer.getContentPane().add(lblSeed);
 		
-		lblAmountOfAddresses = new JLabel("Number of addresses");
+		lblAmountOfAddresses = new JLabel("Addresses to check");
 		springLayout.putConstraint(SpringLayout.WEST, lblAmountOfAddresses, 10, SpringLayout.WEST, frmIotaBalanceViewer.getContentPane());
 		frmIotaBalanceViewer.getContentPane().add(lblAmountOfAddresses);
 		
 		txtAmountOfAdresses = new JTextField();
 		springLayout.putConstraint(SpringLayout.NORTH, txtAmountOfAdresses, 6, SpringLayout.SOUTH, lblAmountOfAddresses);
 		springLayout.putConstraint(SpringLayout.WEST, txtAmountOfAdresses, 0, SpringLayout.WEST, lblSeed);
+		springLayout.putConstraint(SpringLayout.EAST, txtAmountOfAdresses, 0, SpringLayout.EAST, lblAmountOfAddresses);
 		txtAmountOfAdresses.setHorizontalAlignment(SwingConstants.TRAILING);
 		txtAmountOfAdresses.setToolTipText("Number of addresses to be parsed");
 		txtAmountOfAdresses.setText("20");
