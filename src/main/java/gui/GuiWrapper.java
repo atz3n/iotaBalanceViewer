@@ -1,5 +1,7 @@
 package gui;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
@@ -7,8 +9,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import jota.utils.IotaUnitConverter;
 import logic.Logic;
+import settings.Defines;
 import settings.MessageSettings;
+import settings.Settings;
 import utilities.IotaSeedGenerator;
 import utilities.TextAreaWriter;
 
@@ -16,21 +21,37 @@ public class GuiWrapper {
 
 	public static TextAreaWriter messenger;
 
-	private static JTextField _balance;
+	private static JTextField _iotaBalanceView;
+	private static JTextField _fiatBalanceView;
+	private static JTextField _priceView;
 	private static JTextField _numOfAddField;
 	private static JButton _startButton;
 	private static JPasswordField _seedField;
-	
-	private static String cumBalance;
 	
 	private static char defaultEchoChar;
 	
 	private static boolean isGenSeed = false;
 	
+	private static long iotaBalance = -1;
+	private static double price = -1;
+	
+	
+	
+	private static String getFiatSymbol() {
+		if(Settings.FIAT_CURRENCY.equals(Defines.USD)) return Defines.SYMB_USD;
+		if(Settings.FIAT_CURRENCY.equals(Defines.EUR)) return Defines.SYMB_EUR;
+		if(Settings.FIAT_CURRENCY.equals(Defines.GBP)) return Defines.SYMB_GBP;
+		if(Settings.FIAT_CURRENCY.equals(Defines.JPY)) return Defines.SYMB_JPY;
+		if(Settings.FIAT_CURRENCY.equals(Defines.CNY)) return Defines.SYMB_CNY;
+		
+		return Defines.SYMB_USD;
+	}
 		
 	
-	public static void init(JTextArea messageField, JTextField balance, JButton startButton, JPasswordField seedField, JTextField numOfAddField) {
-		_balance = balance;
+	public static void init(JTextArea messageField, JTextField iotaBalanceView, JTextField fiatBalanceView, JTextField priceView, JButton startButton, JPasswordField seedField, JTextField numOfAddField) {
+		_iotaBalanceView = iotaBalanceView;
+		_fiatBalanceView = fiatBalanceView;
+		_priceView = priceView;
 		_startButton = startButton;
 		_seedField = seedField;
 		_numOfAddField = numOfAddField;
@@ -124,7 +145,9 @@ public class GuiWrapper {
 	
 	public static void getBalance() {
 		messenger.clear();
-		cumBalance = null;
+		iotaBalance = -1;
+		price = -1;
+		
 		
 		String numOfAddresses = _numOfAddField.getText();
 		String seed = new String(_seedField.getPassword());
@@ -141,10 +164,31 @@ public class GuiWrapper {
 				
 
 				/* get cumulative balance */
-				cumBalance = Logic.getCumulativeBalance(seed, Integer.valueOf(numOfAddresses));
+				iotaBalance = Logic.getCumulativeBalance(seed, Integer.valueOf(numOfAddresses));
 
 				
-				if (cumBalance != null) _balance.setText(cumBalance);
+				if (iotaBalance != -1) {
+					_iotaBalanceView.setText(IotaUnitConverter.convertRawIotaAmountToDisplayText(iotaBalance, true));
+					
+					
+					/* get price from coinmarketcap.com */
+					price = Logic.getPrice();
+
+					
+					if(price != -1) {
+						String symbol = getFiatSymbol();
+
+						BigDecimal rndPrice = new BigDecimal(price);
+						_priceView.setText(String.valueOf(rndPrice.setScale(2, RoundingMode.HALF_UP)) + symbol);
+						
+						
+						/* calculate price */
+						BigDecimal miotaBalance = new BigDecimal(((double) iotaBalance / 1000000));
+						BigDecimal fiat = Logic.calcFiatBalance(miotaBalance, new BigDecimal(price));
+
+						_fiatBalanceView.setText(String.valueOf(fiat.setScale(2, RoundingMode.HALF_UP)) + symbol);
+					}
+				}
 				
 				_startButton.setEnabled(true);
 				_numOfAddField.setEditable(true);

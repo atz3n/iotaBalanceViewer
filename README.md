@@ -16,6 +16,9 @@ A simple program to show the cumulative balance of an iota seed
 ## Prerequisite
 A Java Runtime Environment must be installed
 
+## Credits
+Thanks miguelantonio for the [coinmarketcap java lib](https://github.com/miguelantonio/coinmarketcap-java)
+
 ## Donation
 If you like it and want to send some Iotas, here is an address ;)
 

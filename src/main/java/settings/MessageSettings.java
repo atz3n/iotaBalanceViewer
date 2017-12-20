@@ -16,6 +16,8 @@ public class MessageSettings {
 	public final static String ERROR__GETTING_BALANCES_1 = ERROR_PREFIX + "Oops! Something went wrong while trying to connect to node ";
 	public final static String ERROR__GETTING_BALANCES_2 = ". :(\\nMaybe it's a good idea to change the node and / or wait a minute before trying again.";
 	
+	public final static String ERROR__COINMARKETCAP = ERROR_PREFIX + "Couldn't get price from coinmarketcap.com. Price calculation skipped";
+
 	public final static String ERROR__UNKONWN =  ERROR_PREFIX +  "Oops! A mysterious problem occurred. :(\\nDon't be sad. Try it again :(";
 	
 	
@@ -37,4 +39,5 @@ public class MessageSettings {
 	public final static String BALANCE_STRING = "balance: ";
 	
 	public final static String IOTA_HOLDING_INDEXES_STRING = "iota holding address indexes: ";
+	
 }

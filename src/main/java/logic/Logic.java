@@ -1,5 +1,6 @@
 package logic;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 import gui.GuiWrapper;
@@ -9,8 +10,12 @@ import jota.dto.response.GetNewAddressResponse;
 import jota.error.InvalidAddressException;
 import jota.utils.Checksum;
 import jota.utils.IotaUnitConverter;
+import settings.Defines;
 import settings.MessageSettings;
 import settings.Settings;
+import utilities.CoinMarketCap;
+import utilities.CoinMarketCap.CoinMarketCapException;
+import utilities.CoinMarketCap.CurrencyConvert;
 
 public class Logic {
 
@@ -47,7 +52,7 @@ public class Logic {
 	}
 	
 		
-	public static String getCumulativeBalance(String seed, int numOfAddresses) {
+	public static long getCumulativeBalance(String seed, int numOfAddresses) {
 		GuiWrapper.messenger.clear();
 		State state = State.INIT;
 
@@ -64,7 +69,7 @@ public class Logic {
 			GuiWrapper.messenger.writeLine(MessageSettings.CREATING_ADDRESSES);
 			
 			/* get addresses derived from the seed*/
-			GetNewAddressResponse gresp = iota.getNewAddress(seed, Settings.IOTA_ADDRESS_SECURITY_LVL, 0, true, numOfAddresses, true);
+			GetNewAddressResponse gresp = iota.getNewAddress(seed, Defines.IOTA_ADDRESS_SECURITY_LVL, 0, true, numOfAddresses, true);
 			
 			
 			/* convert address list to an Array */
@@ -83,18 +88,18 @@ public class Logic {
 			state = State.GETTING_BALANCES;
 			
 			/* get address balances */
-			GetBalancesResponse bresp = iota.getBalances(Settings.IOTA_CONFIRMATION_THRESHOLD, addressesWithoutChecksum);
+			GetBalancesResponse bresp = iota.getBalances(Defines.IOTA_CONFIRMATION_THRESHOLD, addressesWithoutChecksum);
 			
 			
 			GuiWrapper.messenger.clear();
 			
 			/* cumulate address balances */
-			long overallBalance = 0;
+			long cmlBalance = 0;
 			String iotaAddressIndex = MessageSettings.BALANCE_INDEXES_INIT_STRING;
 			
 			for(int i = 0 ; i < gresp.getAddresses().size() ; i++) {
 				long balance = Long.parseLong(bresp.getBalances()[i]);
-				overallBalance += balance; 
+				cmlBalance += balance; 
 
 				GuiWrapper.messenger.writeLine(MessageSettings.ADDRESS_STRING + addresses[i]);
 				GuiWrapper.messenger.writeLine(MessageSettings.ADDRESS_INDEX_STRING + i);
@@ -112,8 +117,7 @@ public class Logic {
 			GuiWrapper.messenger.writeLine(MessageSettings.IOTA_HOLDING_INDEXES_STRING + iotaAddressIndex);
 
 			
-			/* return formated cumulated seed balance */
-			return IotaUnitConverter.convertRawIotaAmountToDisplayText(overallBalance, true);
+			return cmlBalance;
 			
 			
 		} catch (Exception e) {
@@ -134,7 +138,44 @@ public class Logic {
 			}
 			
 			e.printStackTrace();
-			return null;
+			return -1;
 		}
+	}
+		
+	
+	public static double getPrice() {
+		double price = -1;
+		
+		CoinMarketCap.CurrencyConvert fiat = null;
+		
+		if(Settings.FIAT_CURRENCY.equals(Defines.USD)) fiat = null;
+		if(Settings.FIAT_CURRENCY.equals(Defines.EUR)) fiat = CurrencyConvert.EUR;
+		if(Settings.FIAT_CURRENCY.equals(Defines.GBP)) fiat = CurrencyConvert.GBP;
+		if(Settings.FIAT_CURRENCY.equals(Defines.JPY)) fiat = CurrencyConvert.JPY;
+		if(Settings.FIAT_CURRENCY.equals(Defines.CNY)) fiat = CurrencyConvert.CNY;
+		
+		
+		try {
+			
+			CoinMarketCap market = new CoinMarketCap();
+			CoinMarketCap.Ticker result = market.getTickerById("iota", fiat);
+			
+			if(Settings.FIAT_CURRENCY.equals(Defines.USD)) price = result.getPriceUsd().doubleValue();
+			if(Settings.FIAT_CURRENCY.equals(Defines.EUR)) price = result.getPriceEur().doubleValue();
+			if(Settings.FIAT_CURRENCY.equals(Defines.GBP)) price = result.getPriceGbp().doubleValue();
+			if(Settings.FIAT_CURRENCY.equals(Defines.JPY)) price = result.getPriceJpy().doubleValue();
+			if(Settings.FIAT_CURRENCY.equals(Defines.CNY)) price = result.getPriceCny().doubleValue();
+			
+		} catch (CoinMarketCapException e) {
+			GuiWrapper.messenger.writeEmptyLine();
+			GuiWrapper.messenger.writeLine(MessageSettings.ERROR__COINMARKETCAP);
+		}
+		
+		return price;
+	}
+	
+	
+	public static BigDecimal calcFiatBalance(BigDecimal miotaBalance, BigDecimal price) {
+		return miotaBalance.multiply(price);
 	}
 }

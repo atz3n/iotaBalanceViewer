@@ -15,6 +15,7 @@ dependencies {
       
    compile 'org.slf4j:slf4j-nop:1.7.25'
    compile 'com.github.iotaledger:iota.lib.java:v0.9.6'
+   compile 'com.google.guava:guava:19.0'
 }
 
 

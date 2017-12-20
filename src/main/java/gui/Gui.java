@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -21,6 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import settings.Defines;
 import settings.Settings;
 
 public class Gui {
@@ -30,7 +32,7 @@ public class Gui {
 	private JTextField txtAmountOfAdresses;
 	private JPasswordField pwdSeed;
 	private JTextArea textArea;
-	private JTextField txtBalance;
+	private JTextField txtIotaBalance;
 	private JButton btnStart;
 	private SpringLayout springLayout;
 	private JLabel lblAmountOfAddresses;
@@ -41,6 +43,15 @@ public class Gui {
 	private JLabel lblChecksum;
 	private JCheckBoxMenuItem chckbxmntmHideSeed;
 	private JMenuItem mntmCreateSeed;
+	private JLabel lblFiatBalance;
+	private JLabel lblIotaBalance;
+	private JTextField txtFiatBalance;
+	private JTextField txtPrice;
+	private JRadioButtonMenuItem rdbtnmntmGbp;
+	private JRadioButtonMenuItem rdbtnmntmJpy;
+	private JRadioButtonMenuItem rdbtnmntmCny;
+	private JRadioButtonMenuItem rdbtnmntmUsd;
+	private JRadioButtonMenuItem rdbtnmntmEur;
 	
 
 	/**
@@ -64,34 +75,9 @@ public class Gui {
 	 */
 	public Gui() {
 		initialize();
-		GuiWrapper.init(textArea, txtBalance, btnStart, pwdSeed, txtAmountOfAdresses);
-		
-		JMenuBar menuBar = new JMenuBar();
-		frmIotaBalanceViewer.setJMenuBar(menuBar);
-		
-		JMenu mnNode = new JMenu("Node");
-		menuBar.add(mnNode);
-		
-		rdbtnmntmIotaCafe = new JRadioButtonMenuItem("Iota Cafe");
-		rdbtnmntmIotaCafe.setSelected(true);
-		mnNode.add(rdbtnmntmIotaCafe);
-		
-		rdbtnmntmIotaSupport = new JRadioButtonMenuItem("Iota Support");
-		mnNode.add(rdbtnmntmIotaSupport);
-		
-		rdbtnmntmBitfinex = new JRadioButtonMenuItem("Bitfinex");
-		mnNode.add(rdbtnmntmBitfinex);
-		
-		JMenu mnSeed = new JMenu("Seed");
-		menuBar.add(mnSeed);
-		
-		chckbxmntmHideSeed = new JCheckBoxMenuItem("Hide Seed");
-		chckbxmntmHideSeed.setSelected(true);
-		mnSeed.add(chckbxmntmHideSeed);
-		
-		mntmCreateSeed = new JMenuItem("Create Seed");
-		mnSeed.add(mntmCreateSeed);
 		initListener();
+
+		GuiWrapper.init(textArea, txtIotaBalance, txtFiatBalance, txtPrice, btnStart, pwdSeed, txtAmountOfAdresses);
 	}
 
 	/**
@@ -100,13 +86,13 @@ public class Gui {
 	private void initialize() {
 		frmIotaBalanceViewer = new JFrame();
 		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.3.1");
-		frmIotaBalanceViewer.setBounds(100, 100, 450, 394);
+		frmIotaBalanceViewer.setBounds(100, 100, 576, 430);
 		frmIotaBalanceViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		springLayout = new SpringLayout();
 		frmIotaBalanceViewer.getContentPane().setLayout(springLayout);
 		
 		txtChecksum = new JTextField();
-		springLayout.putConstraint(SpringLayout.WEST, txtChecksum, -78, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, txtChecksum, -10, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
 		txtChecksum.setHorizontalAlignment(SwingConstants.TRAILING);
 		txtChecksum.setEditable(false);
 		txtChecksum.setToolTipText("Iota Seeds Checksum");
@@ -138,10 +124,11 @@ public class Gui {
 		txtAmountOfAdresses.setColumns(10);
 		
 		pwdSeed = new JPasswordField();
+		springLayout.putConstraint(SpringLayout.EAST, pwdSeed, -84, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, txtChecksum, 6, SpringLayout.EAST, pwdSeed);
 		pwdSeed.putClientProperty("JPasswordField.cutCopyAllowed",true);
 		springLayout.putConstraint(SpringLayout.NORTH, pwdSeed, 6, SpringLayout.SOUTH, lblSeed);
 		springLayout.putConstraint(SpringLayout.WEST, pwdSeed, 10, SpringLayout.WEST, frmIotaBalanceViewer.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, pwdSeed, -6, SpringLayout.WEST, txtChecksum);
 		springLayout.putConstraint(SpringLayout.NORTH, txtChecksum, 0, SpringLayout.NORTH, pwdSeed);
 		springLayout.putConstraint(SpringLayout.NORTH, lblAmountOfAddresses, 13, SpringLayout.SOUTH, pwdSeed);
 		pwdSeed.setToolTipText("81 Char Iota Seed");
@@ -151,33 +138,119 @@ public class Gui {
 		springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 21, SpringLayout.SOUTH, txtAmountOfAdresses);
 		springLayout.putConstraint(SpringLayout.WEST, scrollPane, 10, SpringLayout.WEST, frmIotaBalanceViewer.getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, scrollPane, -10, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, txtChecksum, 0, SpringLayout.EAST, scrollPane);
 		frmIotaBalanceViewer.getContentPane().add(scrollPane);
 		
 		textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
 		
 		btnStart = new JButton("Start");
-		springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, -20, SpringLayout.NORTH, btnStart);
-		springLayout.putConstraint(SpringLayout.EAST, btnStart, -10, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
 		btnStart.setEnabled(false);
+		springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, -38, SpringLayout.NORTH, btnStart);
+		springLayout.putConstraint(SpringLayout.EAST, btnStart, -10, SpringLayout.EAST, frmIotaBalanceViewer.getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, btnStart, -10, SpringLayout.SOUTH, frmIotaBalanceViewer.getContentPane());
 		frmIotaBalanceViewer.getContentPane().add(btnStart);
 		
-		JLabel lblCumulativeBalance = new JLabel("Cumulative Balance");
-		springLayout.putConstraint(SpringLayout.NORTH, lblCumulativeBalance, 5, SpringLayout.NORTH, btnStart);
-		springLayout.putConstraint(SpringLayout.WEST, lblCumulativeBalance, 0, SpringLayout.WEST, lblSeed);
-		frmIotaBalanceViewer.getContentPane().add(lblCumulativeBalance);
+		lblIotaBalance = new JLabel("Iota Balance");
+		springLayout.putConstraint(SpringLayout.NORTH, lblIotaBalance, 17, SpringLayout.SOUTH, scrollPane);
+		springLayout.putConstraint(SpringLayout.WEST, lblIotaBalance, 0, SpringLayout.WEST, lblSeed);
+		frmIotaBalanceViewer.getContentPane().add(lblIotaBalance);
 		
-		txtBalance = new JTextField();
-		txtBalance.setHorizontalAlignment(SwingConstants.TRAILING);
-		txtBalance.setEditable(false);
-		springLayout.putConstraint(SpringLayout.WEST, txtBalance, 6, SpringLayout.EAST, lblCumulativeBalance);
-		springLayout.putConstraint(SpringLayout.SOUTH, txtBalance, -13, SpringLayout.SOUTH, frmIotaBalanceViewer.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, txtBalance, -44, SpringLayout.WEST, btnStart);
-		txtBalance.setText("0");
-		frmIotaBalanceViewer.getContentPane().add(txtBalance);
-		txtBalance.setColumns(10);
+		txtIotaBalance = new JTextField();
+		springLayout.putConstraint(SpringLayout.SOUTH, lblIotaBalance, -6, SpringLayout.NORTH, txtIotaBalance);
+		springLayout.putConstraint(SpringLayout.EAST, txtIotaBalance, 175, SpringLayout.WEST, lblSeed);
+		springLayout.putConstraint(SpringLayout.NORTH, txtIotaBalance, 3, SpringLayout.NORTH, btnStart);
+		springLayout.putConstraint(SpringLayout.WEST, txtIotaBalance, 0, SpringLayout.WEST, lblSeed);
+		txtIotaBalance.setHorizontalAlignment(SwingConstants.TRAILING);
+		txtIotaBalance.setEditable(false);
+		txtIotaBalance.setText("0");
+		frmIotaBalanceViewer.getContentPane().add(txtIotaBalance);
+		txtIotaBalance.setColumns(10);
+		
+		lblFiatBalance = new JLabel("Fiat Balance");
+		springLayout.putConstraint(SpringLayout.NORTH, lblFiatBalance, 2, SpringLayout.NORTH, lblIotaBalance);
+		springLayout.putConstraint(SpringLayout.WEST, lblFiatBalance, 214, SpringLayout.EAST, lblIotaBalance);
+		frmIotaBalanceViewer.getContentPane().add(lblFiatBalance);
+		
+		txtFiatBalance = new JTextField();
+		springLayout.putConstraint(SpringLayout.NORTH, txtFiatBalance, 3, SpringLayout.NORTH, btnStart);
+		springLayout.putConstraint(SpringLayout.WEST, txtFiatBalance, 128, SpringLayout.EAST, txtIotaBalance);
+		springLayout.putConstraint(SpringLayout.EAST, txtFiatBalance, 286, SpringLayout.EAST, txtIotaBalance);
+		txtFiatBalance.setEditable(false);
+		txtFiatBalance.setText("0");
+		txtFiatBalance.setHorizontalAlignment(SwingConstants.TRAILING);
+		frmIotaBalanceViewer.getContentPane().add(txtFiatBalance);
+		txtFiatBalance.setColumns(10);
+		
+		txtPrice = new JTextField();
+		txtPrice.setEditable(false);
+		txtPrice.setHorizontalAlignment(SwingConstants.TRAILING);
+		txtPrice.setText("0");
+		springLayout.putConstraint(SpringLayout.NORTH, txtPrice, 3, SpringLayout.NORTH, btnStart);
+		springLayout.putConstraint(SpringLayout.WEST, txtPrice, 6, SpringLayout.EAST, txtIotaBalance);
+		frmIotaBalanceViewer.getContentPane().add(txtPrice);
+		txtPrice.setColumns(10);
+		
+		JLabel lblPrice = new JLabel("Price / MIOTA");
+		springLayout.putConstraint(SpringLayout.NORTH, lblPrice, 2, SpringLayout.NORTH, lblIotaBalance);
+		springLayout.putConstraint(SpringLayout.WEST, lblPrice, 0, SpringLayout.WEST, txtPrice);
+		frmIotaBalanceViewer.getContentPane().add(lblPrice);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frmIotaBalanceViewer.setJMenuBar(menuBar);
+		
+		JMenu mnNode = new JMenu("Node");
+		menuBar.add(mnNode);
+		
+		rdbtnmntmIotaCafe = new JRadioButtonMenuItem("Iota Cafe");
+		rdbtnmntmIotaCafe.setSelected(true);
+		mnNode.add(rdbtnmntmIotaCafe);
+		
+		rdbtnmntmIotaSupport = new JRadioButtonMenuItem("Iota Support");
+		mnNode.add(rdbtnmntmIotaSupport);
+		
+		rdbtnmntmBitfinex = new JRadioButtonMenuItem("Bitfinex");
+		mnNode.add(rdbtnmntmBitfinex);
+		
+		ButtonGroup nodeGroup = new ButtonGroup();
+		nodeGroup.add(rdbtnmntmBitfinex);
+		nodeGroup.add(rdbtnmntmIotaCafe);
+		nodeGroup.add(rdbtnmntmIotaSupport);
+		
+		JMenu mnSeed = new JMenu("Seed");
+		menuBar.add(mnSeed);
+		
+		chckbxmntmHideSeed = new JCheckBoxMenuItem("Hide Seed");
+		chckbxmntmHideSeed.setSelected(true);
+		mnSeed.add(chckbxmntmHideSeed);
+		
+		mntmCreateSeed = new JMenuItem("Create Seed");
+		mnSeed.add(mntmCreateSeed);
+		
+		JMenu mnFiat = new JMenu("Fiat");
+		menuBar.add(mnFiat);
+		
+		rdbtnmntmUsd = new JRadioButtonMenuItem("USD");
+		mnFiat.add(rdbtnmntmUsd);
+		
+		rdbtnmntmEur = new JRadioButtonMenuItem("EUR");
+		rdbtnmntmEur.setSelected(true);
+		mnFiat.add(rdbtnmntmEur);
+		
+		rdbtnmntmGbp = new JRadioButtonMenuItem("GBP");
+		mnFiat.add(rdbtnmntmGbp);
+		
+		rdbtnmntmJpy = new JRadioButtonMenuItem("JPY");
+		mnFiat.add(rdbtnmntmJpy);
+		
+		rdbtnmntmCny = new JRadioButtonMenuItem("CNY");
+		mnFiat.add(rdbtnmntmCny);
+		
+		ButtonGroup fiatGroup = new ButtonGroup();
+		fiatGroup.add(rdbtnmntmUsd);
+		fiatGroup.add(rdbtnmntmEur);
+		fiatGroup.add(rdbtnmntmGbp);
+		fiatGroup.add(rdbtnmntmJpy);
+		fiatGroup.add(rdbtnmntmCny);
 	}
 	
 	
@@ -252,6 +325,46 @@ public class Gui {
 			public void actionPerformed(ActionEvent e) {
 				GuiWrapper.getRandomSeed();
 				
+			}
+		});
+		
+		rdbtnmntmEur.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FIAT_CURRENCY = Defines.EUR;
+			}
+		});
+		
+		rdbtnmntmUsd.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FIAT_CURRENCY = Defines.USD;
+			}
+		});
+		
+		rdbtnmntmGbp.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FIAT_CURRENCY = Defines.GBP;
+			}
+		});
+		
+		rdbtnmntmJpy.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FIAT_CURRENCY = Defines.JPY;
+			}
+		});
+		
+		rdbtnmntmCny.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Settings.FIAT_CURRENCY = Defines.CNY;
 			}
 		});
 	}
