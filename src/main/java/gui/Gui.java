@@ -85,7 +85,7 @@ public class Gui {
 	 */
 	private void initialize() {
 		frmIotaBalanceViewer = new JFrame();
-		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.3.1");
+		frmIotaBalanceViewer.setTitle("Iota Balance Viewer v0.4.0");
 		frmIotaBalanceViewer.setBounds(100, 100, 576, 430);
 		frmIotaBalanceViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		springLayout = new SpringLayout();
