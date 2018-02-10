@@ -1,6 +1,7 @@
 # Iota-Balance-Viewer
-A simple program to show the cumulative balance of an iota seed
+A simple program to show the cumulative balance of an iota seed.
 
+Address and Seed generation is executed locally using the official [jota lib](https://github.com/iotaledger/iota.lib.java).
 
 ## Installation
 1. Download the .zip or .tar archive from [here](https://github.com/Atzen2/Iota-Balance-Viewer/releases)
